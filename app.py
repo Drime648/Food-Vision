@@ -3,30 +3,29 @@ import pandas as pd
 import numpy as np
 import altair as alt
 import pydeck as pdk
+import tensorflow as tf
+
 
 # SETTING PAGE CONFIG TO WIDE MODE
 st.set_page_config(layout="wide")
 
-# LOADING DATA
-DATE_TIME = "date/time"
-DATA_URL = (
-    "http://s3-us-west-2.amazonaws.com/streamlit-demo-data/uber-raw-data-sep14.csv.gz"
-)
+def main():
+    """Run this function to display the Streamlit app"""
+    # st.info(__doc__)
+    # st.markdown(STYLE, unsafe_allow_html=True)
+ 
+    file = st.file_uploader("Upload file", type=["png", "jpg"])
+    show_file = st.empty()
+ 
+    if not file:
+        show_file.info("Please upload a file of type: " + "/".join(["png", "jpg"]))
+        return
+ 
+    content = file.getvalue()
 
-st.title("Uber Pickups in NYC")
+    show_file.image(file)
+    file.close()
+ 
+main()
 
-@st.cache(persist=True)
-def load_data(nrows):
-    data = pd.read_csv(DATA_URL, nrows=nrows)
-    lowercase = lambda x: str(x).lower()
-    data.rename(lowercase, axis="columns", inplace=True)
-    data[DATE_TIME] = pd.to_datetime(data[DATE_TIME])
-    return data
 
-data = load_data(100000)
-hour = st.sidebar.slider('hour', 0, 23, 10, step = 1)
-data = data[data[DATE_TIME].dt.hour == hour]
-
-'Uber Pickup Data at %sh' % hour
-
-st.map(data)
